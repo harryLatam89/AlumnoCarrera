@@ -12,9 +12,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.materiaalumno.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
     private lateinit var dbHelper: RegistroDatabaseHelper
     private lateinit var  adapter: ArrayAdapter<String>
     private lateinit var spinnerCarreras: Spinner
@@ -24,7 +26,9 @@ class MainActivity : AppCompatActivity() {
 
       override fun onCreate(savedInstanceState: Bundle?) {
           super.onCreate(savedInstanceState)
-          setContentView(R.layout.activity_main)
+          binding= ActivityMainBinding.inflate(layoutInflater)
+
+          setContentView(binding.root)
 
            dbHelper = RegistroDatabaseHelper(this)
           spinnerCarreras= findViewById(R.id.spinnerCarreras)
@@ -33,7 +37,8 @@ class MainActivity : AppCompatActivity() {
 
        // llenarTablaCarreras()
          configurarSpinnerCarreras()
-          actualizarListAlumnos()
+          //aca se cambio a actulizarlistAlumnos2
+          actualizarListAlumnos2()
 
 //          val btnAgregarAlumno:Button=findViewById(R.id.btnAgregarAlumno)
 //          btnAgregarAlumno.setOnClickListener {
@@ -104,6 +109,9 @@ class MainActivity : AppCompatActivity() {
 //        adapter= ArrayAdapter(this,android.R.layout.simple_list_item_1,nombresAlumnosCarrera)
 //        listViewAlumnos.adapter=adapter
 //    }
+
+
+
 private fun actualizarListAlumnos() {
     try {
         val alumnosList = dbHelper.getAllAlumnosCarrera()
@@ -138,5 +146,28 @@ private fun actualizarListAlumnos() {
         ).show()
     }
 }
+
+
+    private fun actualizarListAlumnos2() {
+        try {
+            val alumnosList = dbHelper.getAllAlumnosCarrera2()
+
+            if (alumnosList.isEmpty()) {
+                // Manejar el caso de lista vacía
+                listViewAlumnos.adapter = null
+                Toast.makeText(this, "No hay alumnos registrados", Toast.LENGTH_SHORT).show()
+                return
+            }
+            binding.listViewAlumnos.adapter=AdpterAlumno(this,alumnosList)
+
+        } catch (e: Exception) {
+            Log.e("ActualizarLista", "Error al actualizar la lista de alumnos", e)
+            Toast.makeText(
+                this,
+                "Error al cargar la lista de alumnos",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
 }

@@ -85,18 +85,6 @@ class RegistroDatabaseHelper (context: Context):SQLiteOpenHelper(context, DATABA
         INNER JOIN $TABLE_CARRERA
         ON ${TABLE_ALUMNO}.${COLUMN_ALUMNO_ID_CARRERA} = ${TABLE_CARRERA}.${COLUMN_CARRERA_ID}
     """
-
-//        val db=this.readableDatabase
-//        val cursor=db.rawQuery(selectQuery,null)
-//        while(cursor.moveToNext()){
-//            val nombreAlumno= cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ALUMNO_NOMBRE))
-//            val nombreCarrera=cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CARRERA_NOMBRE))
-//            val alumnoCarrera=Pair(nombreAlumno,nombreCarrera)
-//            alumnoCarraraList.add(alumnoCarrera)
-//        }
- //       cursor.close()
-      //  db.close()
-
         try {
             val db = readableDatabase
             db.rawQuery(selectQuery, null).use { cursor ->
@@ -106,6 +94,39 @@ class RegistroDatabaseHelper (context: Context):SQLiteOpenHelper(context, DATABA
                     val nombreAlumno = cursor.getString(alumnoIndex)
                     val nombreCarrera = cursor.getString(carreraIndex)
                     alumnoCarreraList.add(Pair(nombreAlumno, nombreCarrera))
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("DatabaseError", "Error al obtener alumnos y carreras", e)
+        }
+
+
+
+
+
+        return alumnoCarreraList
+    }
+
+    fun getAllAlumnosCarrera2():ArrayList<AlumnoData>{
+        val alumnoCarreraList=ArrayList<AlumnoData>()
+        val selectQuery = """
+        SELECT $TABLE_ALUMNO.$COLUMN_ALUMNO_ID,$TABLE_CARRERA.$COLUMN_CARRERA_ID,    ${TABLE_ALUMNO}.${COLUMN_ALUMNO_NOMBRE}, ${TABLE_CARRERA}.${COLUMN_CARRERA_NOMBRE}
+        FROM $TABLE_ALUMNO 
+        INNER JOIN $TABLE_CARRERA
+        ON ${TABLE_ALUMNO}.${COLUMN_ALUMNO_ID_CARRERA} = ${TABLE_CARRERA}.${COLUMN_CARRERA_ID}
+    """
+        try {
+            val db = readableDatabase
+            db.rawQuery(selectQuery, null).use { cursor ->
+                val alumnoIndex = cursor.getColumnIndexOrThrow(COLUMN_ALUMNO_NOMBRE)
+                val carreraIndex = cursor.getColumnIndexOrThrow(COLUMN_CARRERA_NOMBRE)
+                while (cursor.moveToNext()) {
+                    val idAlumno= cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ALUMNO_ID))
+                    val idCarrera=cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CARRERA_ID))
+                    val nombreAlumno = cursor.getString(alumnoIndex)
+                    val nombreCarrera = cursor.getString(carreraIndex)
+                    val almnoCarrera= AlumnoData(idAlumno,nombreAlumno,idCarrera,nombreCarrera)
+                    alumnoCarreraList.add(almnoCarrera)
                 }
             }
         } catch (e: Exception) {
